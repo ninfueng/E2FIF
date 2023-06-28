@@ -58,12 +58,12 @@ class checkpoint:
         if not args.load:
             if not args.save:
                 args.save = now
-            self.dir = os.path.join("..", "experiment", args.save)
+            self.dir = os.path.join("experiment", args.save)
             assert (
                 not os.path.exists(self.dir) or args.reset
             ), "the save dir {} has exist".format(args.save)
         else:
-            self.dir = os.path.join("..", "experiment", args.load)
+            self.dir = os.path.join("experiment", args.load)
             if os.path.exists(self.dir) and not args.test_only:
                 self.log = torch.load(self.get_path("psnr_log.pt"))
                 print("Continue from epoch {}...".format(len(self.log)))
@@ -78,7 +78,7 @@ class checkpoint:
             os.system("rm -rf " + self.tb_dir)
             args.load = ""
 
-        os.makedirs(os.path.join("..", "tensorboard_files"), exist_ok=True)
+        os.makedirs(os.path.join("tensorboard_files"), exist_ok=True)
         os.makedirs(self.tb_dir, exist_ok=True)
         self.tb_writer = SummaryWriter(log_dir=self.tb_dir)
 
@@ -428,7 +428,7 @@ def make_optimizer(args, target):
             self.scheduler.step()
 
         def get_lr(self):
-            return self.scheduler.get_lr()[0]
+            return self.scheduler.get_last_lr()[0]
 
         def get_last_epoch(self):
             return self.scheduler.last_epoch

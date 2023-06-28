@@ -160,11 +160,11 @@ class EDSR(nn.Module):
         scale = args.scale[0]
         self.need_mid_feas = args.need_mid_feas
         act = functools.partial(nn.LeakyReLU, negative_slope=0.1, inplace=True)
-        url_name = "r{}f{}x{}".format(n_resblocks, n_feats, scale)
-        if url_name in url:
-            self.url = url[url_name]
-        else:
-            self.url = None
+        # url_name = "r{}f{}x{}".format(n_resblocks, n_feats, scale)
+        # if url_name in url:
+        #     self.url = url[url_name]
+        # else:
+        #     self.url = None
         if args.n_colors == 3:
             self.sub_mean = common.MeanShift(args.rgb_range)
             self.add_mean = common.MeanShift(args.rgb_range, sign=1)

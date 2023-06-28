@@ -6,6 +6,7 @@ import model
 import utility
 from option import args
 from trainer import Trainer
+from videotester import VideoTester
 
 torch.manual_seed(args.seed)
 checkpoint = utility.checkpoint(args)
@@ -14,7 +15,6 @@ checkpoint = utility.checkpoint(args)
 def main():
     global model
     if args.data_test == ["video"]:
-        from videotester import VideoTester
 
         model = model.Model(args, checkpoint)
         t = VideoTester(args, model, checkpoint)
