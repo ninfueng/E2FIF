@@ -1,16 +1,16 @@
 import os
 
-from data import common
-
 import cv2
-import numpy as np
 import imageio
-
+import numpy as np
 import torch
 import torch.utils.data as data
 
+from data import common
+
+
 class Video(data.Dataset):
-    def __init__(self, args, name='Video', train=False, benchmark=False):
+    def __init__(self, args, name="Video", train=False, benchmark=False):
         self.args = args
         self.name = name
         self.scale = args.scale
@@ -28,10 +28,10 @@ class Video(data.Dataset):
         success, lr = self.vidcap.read()
         if success:
             self.n_frames += 1
-            lr, = common.set_channel(lr, n_channels=self.args.n_colors)
-            lr_t, = common.np2Tensor(lr, rgb_range=self.args.rgb_range)
+            (lr,) = common.set_channel(lr, n_channels=self.args.n_colors)
+            (lr_t,) = common.np2Tensor(lr, rgb_range=self.args.rgb_range)
 
-            return lr_t, -1, '{}_{:0>5}'.format(self.filename, self.n_frames)
+            return lr_t, -1, "{}_{:0>5}".format(self.filename, self.n_frames)
         else:
             vidcap.release()
             return None
@@ -41,4 +41,3 @@ class Video(data.Dataset):
 
     def set_scale(self, idx_scale):
         self.idx_scale = idx_scale
-

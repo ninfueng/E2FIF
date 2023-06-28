@@ -1,25 +1,38 @@
-import threading
 import random
+import threading
 
 import torch
 import torch.multiprocessing as multiprocessing
-from torch.utils.data import DataLoader
-from torch.utils.data import SequentialSampler
-from torch.utils.data import RandomSampler
-from torch.utils.data import BatchSampler
-from torch.utils.data import _utils
+from torch._six import queue
+from torch.utils.data import (
+    BatchSampler,
+    DataLoader,
+    RandomSampler,
+    SequentialSampler,
+    _utils,
+)
+from torch.utils.data._utils import (
+    IS_WINDOWS,
+    MP_STATUS_CHECK_INTERVAL,
+    ExceptionWrapper,
+    collate,
+    signal_handling,
+)
+from torch.utils.data._utils.worker import ManagerWatchdog
 from torch.utils.data.dataloader import _DataLoaderIter
 
-from torch.utils.data._utils import collate
-from torch.utils.data._utils import signal_handling
-from torch.utils.data._utils import MP_STATUS_CHECK_INTERVAL
-from torch.utils.data._utils import ExceptionWrapper
-from torch.utils.data._utils import IS_WINDOWS
-from torch.utils.data._utils.worker import ManagerWatchdog
 
-from torch._six import queue
-
-def _ms_loop(dataset, index_queue, data_queue, done_event, collate_fn, scale, seed, init_fn, worker_id):
+def _ms_loop(
+    dataset,
+    index_queue,
+    data_queue,
+    done_event,
+    collate_fn,
+    scale,
+    seed,
+    init_fn,
+    worker_id,
+):
     try:
         collate._use_shared_memory = True
         signal_handling._set_worker_signal_handlers()
@@ -65,8 +78,8 @@ def _ms_loop(dataset, index_queue, data_queue, done_event, collate_fn, scale, se
     except KeyboardInterrupt:
         pass
 
-class _MSDataLoaderIter(_DataLoaderIter):
 
+class _MSDataLoaderIter(_DataLoaderIter):
     def __init__(self, loader):
         self.dataset = loader.dataset
         self.scale = loader.scale
@@ -110,8 +123,8 @@ class _MSDataLoaderIter(_DataLoaderIter):
                         self.scale,
                         base_seed + i,
                         self.worker_init_fn,
-                        i
-                    )
+                        i,
+                    ),
                 )
                 w.daemon = True
                 w.start()
@@ -126,8 +139,8 @@ class _MSDataLoaderIter(_DataLoaderIter):
                         self.worker_result_queue,
                         self.data_queue,
                         torch.cuda.current_device(),
-                        self.done_event
-                    )
+                        self.done_event,
+                    ),
                 )
                 pin_memory_thread.daemon = True
                 pin_memory_thread.start()
@@ -146,13 +159,9 @@ class _MSDataLoaderIter(_DataLoaderIter):
 
 
 class MSDataLoader(DataLoader):
-
     def __init__(self, cfg, *args, **kwargs):
-        super(MSDataLoader, self).__init__(
-            *args, **kwargs, num_workers=cfg.n_threads
-        )
+        super(MSDataLoader, self).__init__(*args, **kwargs, num_workers=cfg.n_threads)
         self.scale = cfg.scale
 
     def __iter__(self):
         return _MSDataLoaderIter(self)
-
